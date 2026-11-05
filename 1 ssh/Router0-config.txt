@@ -1,0 +1,51 @@
+!===========================================================
+! Router0 (Cisco 2911) - Telnet & SSH configuration
+! Topology: PC0 (10.0.0.10/8) <---> Router0 Gi0/0 (10.0.0.1/8)
+!===========================================================
+enable
+configure terminal
+
+hostname Router0
+no ip domain-lookup
+
+! --- Interface ---
+interface GigabitEthernet0/0
+ ip address 10.0.0.1 255.0.0.0
+ no shutdown
+ exit
+
+! --- Privileged EXEC password (needed after login) ---
+enable secret Cisco@123
+
+! --- Local user for remote login ---
+username admin privilege 15 secret Admin@123
+
+! --- SSH prerequisites: hostname + domain name + RSA keys ---
+ip domain-name lab.local
+crypto key generate rsa general-keys modulus 1024
+ip ssh version 2
+ip ssh time-out 60
+ip ssh authentication-retries 3
+
+! --- PHASE 1: Telnet + SSH both allowed (for demo) ---
+line vty 0 4
+ login local
+ transport input telnet ssh
+ exec-timeout 10 0
+ exit
+
+service password-encryption
+banner motd #Authorized access only!#
+
+end
+write memory
+
+!===========================================================
+! PHASE 2: Harden - disable Telnet, allow SSH only
+! (run after you have demonstrated Telnet)
+!===========================================================
+! configure terminal
+! line vty 0 4
+!  transport input ssh
+! end
+! write memory
