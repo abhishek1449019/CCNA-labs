@@ -1,0 +1,28 @@
+!=========================================
+! R3 (Cisco 2911) - Static Routing
+!=========================================
+enable
+configure terminal
+hostname R3
+no ip domain-lookup
+
+! Link to R2
+interface GigabitEthernet0/0
+ description Link to R2 (30.0.0.0/8)
+ ip address 30.0.0.2 255.0.0.0
+ no shutdown
+ exit
+
+! LAN towards PC1
+interface GigabitEthernet0/1
+ description LAN to PC1 (40.0.0.0/8)
+ ip address 40.0.0.1 255.0.0.0
+ no shutdown
+ exit
+
+! Static routes (next hop = R2 Gi0/1)
+ip route 10.0.0.0 255.0.0.0 30.0.0.1
+ip route 20.0.0.0 255.0.0.0 30.0.0.1
+
+end
+write memory
